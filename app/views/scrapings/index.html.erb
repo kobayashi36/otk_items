@@ -1,0 +1,24 @@
+<p id="notice"><%= notice %></p>
+<h1>ほしい物リストの一覧だよ(σ・∀・)σ</h1>
+<p>＞＞＞欲しいものを<a href="/">探す</a>！</p>
+<table>
+	<thread>
+		<tr>
+			<th></th>
+			<th>商品名</th>
+			<th colspan="2"></th>
+		</tr>
+	</thread>
+
+	<tbody>
+		<% @scrapings.each do |scraping| %>
+			<tr>
+				<td><img src="<%= scraping.img %>"></td>
+				<td><a href="<%= scraping.src %>" target="_blank"><%= scraping.item_name %></td>
+				<td><%= button_to '完了', scraping, method: :delete, data: { confirm: '完了しましたか？'} %></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+
+<br>

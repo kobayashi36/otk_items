@@ -1,0 +1,51 @@
+<p id="notice"><%= notice %></p>
+<h1>ほしい商品を保存してね（ ＾ω＾）</h1>
+<p>＞＞＞一覧は<a href="/scrapings">こちら</a></p>
+<table>
+	<thread>
+		<tr>
+			<th></th>
+			<th>商品名</th>
+			<th colspan="2"></th>
+		</tr>
+	</thread>
+<%
+	require 'open-uri'
+	require 'nokogiri'
+
+	# スクレイピング先のURL
+	url = 'http://store.broccoli.co.jp/ec/cmHeaderSearchProduct/doSearchProduct/cmHeader/%20/%20/1?wd=%E3%83%A9%E3%83%96%E3%83%A9%E3%82%A4%E3%83%96%20%E5%B0%8F%E6%B3%89%E8%8A%B1%E9%99%BD'
+
+	charset = nil
+	html = open(url) do |f|
+	  charset = f.charset # 文字種別を取得
+	  f.read # htmlを読み込んで変数htmlに渡す
+	end
+
+	# htmlをパース(解析)してオブジェクトを作成
+	doc = Nokogiri::HTML.parse(html, nil, charset)
+
+	doc.xpath('//div[@class="image"]').each do |image|
+		name = image.css('img').attribute('alt').value
+		img = "http://store.broccoli.co.jp/ec/cmHeaderSearchProduct/doSearchProduct/cmHeader/%20/%20/"+ image.css('img').attribute('src').value
+		src = "http://store.broccoli.co.jp/"+ image.css('a').attribute('href').value
+%>
+
+	<tbody>
+			<tr>
+				<td><img src="<%= img %>"></td>
+				<td><a href="<%= src %>" target="_blank"><%= name %></td>
+				<td><%= link_to('保存', controller: "scrapings", action: "new", item_name: name, img: img, src: src)%></td>
+			</tr>
+	</tbody>
+<%
+#doc.xpath('//div[@class="image"]').each do |image|
+	#商品ページ
+#	puts image.css('a').attribute('href').value
+	#商品画像
+#	puts image.css('img').attribute('src').value
+	#商品名
+#	puts image.css('img').attribute('alt').value
+end
+%>
+</table>

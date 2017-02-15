@@ -1,0 +1,22 @@
+<h1>ほしい物リスト</h1>
+
+<table>
+	<thread>
+		<tr>
+			<th></th>
+			<th>商品名</th>
+			<th colspan="2"></th>
+		</tr>
+	</thread>
+
+	<tbody>
+		<% @scrapings.each do |scraping| %>
+			<tr>
+				<td><img src="<%= scraping.item_img %>"></td>
+				<td><a href="<%= scraping.src %>"><%= scraping.img %></a></td>
+			</tr>
+		<% end %>
+	</tbody>
+</table>
+
+<br>
