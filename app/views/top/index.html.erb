@@ -1,21 +1,29 @@
 <p id="notice"><%= notice %></p>
 <h1>ほしい商品を保存してね（ ＾ω＾）</h1>
 <p>＞＞＞一覧は<a href="/scrapings">こちら</a></p>
-<table>
-	<thread>
-		<tr>
-			<th></th>
-			<th>商品名</th>
-			<th colspan="2"></th>
-		</tr>
-	</thread>
-	<% for m in @items %>
-		<tbody>
-				<tr>
-					<td><img src="<%=h m['img'] %>"></td>
-					<td><a href="<%=h m['src'] %>" target="_blank"><%=h m['name'] %></td>
-					<td><%= link_to('保存', controller: "scrapings", action: "new", item_name: @name, img: @img, src: @src)%></td>
-				</tr>
-		</tbody>
+<div>
+	<%= form_tag('/', method: 'get') do %>
+	<%= text_field_tag :word, params[:word], :size=>'60' %>
+	<%= submit_tag '検索' %>
 	<% end %>
-</table>
+</div>
+<div>
+	<table>
+		<thread>
+			<tr>
+				<th></th>
+				<th>商品名</th>
+				<th colspan="2"></th>
+			</tr>
+		</thread>
+		<% for m in 0..@name.count-1 do %>
+			<tbody>
+					<tr>
+						<td><img src="<%=@img[m] %>"></td>
+						<td><a href="<%=@src[m] %>" target="_blank"><%=@name[m] %></td>
+						<td><%= link_to('保存', controller: "scrapings", action: "new", item_name: @name[m], img: @img[m], src: @src[m] ,want: @words) %></td>
+					</tr>
+			</tbody>
+		<% end %>
+	</table>
+</div>

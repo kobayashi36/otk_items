@@ -5,7 +5,7 @@ class ScrapingsController < ApplicationController
 		if @scraping.save
 			@scrapings = Scraping.all
 			#render :index
-			redirect_to root_path, notice: '＼『' + @scraping.item_name + '』を欲しいリストに登録しました！／'
+			redirect_to root_path+'?utf8=✓&word='+params[:want]+'&commit=検索', notice: '＼『' + @scraping.item_name + '』を欲しいリストに登録しました！／'
 		end
 	end
 

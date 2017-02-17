@@ -1,49 +1,59 @@
 class TopController < ApplicationController
   require 'open-uri'
   require 'nokogiri'
+  require 'URI'
 
   def index
-  	# スクレイピング先のURL
-  	url = 'http://www.animate-onlineshop.jp/products/list.php?mode=search&spc=0&smt=%E3%83%A9%E3%83%96%E3%83%A9%E3%82%A4%E3%83%96%E3%80%80%E5%B0%8F%E6%B3%89%E8%8A%B1%E9%99%BD'
+	@words = params[:word]
+	urls = create_url(@words)
 
-  	charset = nil
-  	html = open(url) do |f|
-  	  charset = f.charset # 文字種別を取得
-  	  f.read # htmlを読み込んで変数htmlに渡す
-  	end
+	@name = Array.new
+	@img = Array.new
+	@src = Array.new
+	count = 0
+	urls.each do |url|
+		doc = get_obj(url)
+		xpath,path,img = get_xpath(url)
 
-  	# htmlをパース(解析)してオブジェクトを作成
-  	doc = Nokogiri::HTML.parse(html, nil, charset)
-
-	@items = Array.new
-  	doc.xpath('//div[@class="imgsizefix"]').each do |image|
-	  	h = Hash.new
-		h["name"] = image.css('img').attribute('alt').value
-		h["img"] =  image.css('img').attribute('src').value
-		h["src"] = "http://www.animate-onlineshop.jp/"+ image.css('a').attribute('href').value
-		@items.push(h)
-    end
-
-	url = 'http://store.broccoli.co.jp/ec/cmHeaderSearchProduct/doSearchProduct/cmHeader/%20/%20/1?wd=%E3%83%A9%E3%83%96%E3%83%A9%E3%82%A4%E3%83%96%20%E5%B0%8F%E6%B3%89%E8%8A%B1%E9%99%BD'
-
-  	charset = nil
-  	html = open(url) do |f|
-  	  charset = f.charset # 文字種別を取得
-  	  f.read # htmlを読み込んで変数htmlに渡す
-  	end
-
-  	# htmlをパース(解析)してオブジェクトを作成
-  	doc = Nokogiri::HTML.parse(html, nil, charset)
-
-  	doc.xpath('//div[@class="image"]').each do |image|
-	  	h = Hash.new
-		h["name"] = image.css('img').attribute('alt').value
-		h["img"] = "http://store.broccoli.co.jp/ec/cmHeaderSearchProduct/doSearchProduct/cmHeader/%20/%20/"+ image.css('img').attribute('src').value
-		h["src"] = "http://store.broccoli.co.jp/"+ image.css('a').attribute('href').value
-		@items.push(h)
-    end
+		doc.xpath('//div[@class="'+xpath+'"]').each do |html|
+			@name[count] = html.css('img').attribute('alt').value
+			@img[count] = img+html.css('img').attribute('src').value
+			@src[count] = path+ html.css('a').attribute('href').value
+			count += 1
+	    end
+	end
 
 	render :action => 'index.html.erb'
+  end
+
+  def create_url(words)
+	  url = Array.new
+	  word = ''
+	  if !words.blank? then
+		word = URI.encode(words)
+	  	url.push('http://www.animate-onlineshop.jp/products/list.php?mode=search&spc=0&smt='+word)
+	  	url.push('http://store.broccoli.co.jp/ec/cmHeaderSearchProduct/doSearchProduct/cmHeader/%20/%20/1?wd='+word)
+	  end
+	  return url
+  end
+
+  def get_obj(url)
+	  charset = nil
+	  html = open(url) do |f|
+	    charset = f.charset # 文字種別を取得
+	    f.read # htmlを読み込んで変数htmlに渡す
+	  end
+	  # htmlをパース(解析)してオブジェクトを作成
+	  doc = Nokogiri::HTML.parse(html, nil, charset)
+	  return doc
+  end
+
+  def get_xpath(url)
+	  if url.index('animate') != nil then
+		  return 'imgsizefix','http://www.animate-onlineshop.jp/',''
+	  elsif url.index('broccoli') != nil then
+		  return 'image','http://store.broccoli.co.jp/','http://store.broccoli.co.jp/ec/cmHeaderSearchProduct/doSearchProduct/cmHeader/%20/%20/'
+	  end
   end
 
 end
